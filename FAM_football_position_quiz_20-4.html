@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAM Football Position Quiz</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,"Noto Sans Thai",sans-serif;background:linear-gradient(135deg,#061b12,#0d4b2b);color:#fff;min-height:100vh}
+.wrap{max-width:760px;margin:auto;padding:18px}.card{background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.16);border-radius:25px;padding:22px;box-shadow:0 15px 45px rgba(0,0,0,.35)}
+.logo{text-align:center;font-size:48px;font-weight:900;color:#65f09a;letter-spacing:3px}.ball{text-align:center;font-size:45px}h1{text-align:center;margin:4px 0;font-size:28px}.sub{text-align:center;color:#c9ead5;margin:8px 0 20px}
+.progress{height:9px;background:#ffffff22;border-radius:9px;overflow:hidden}.bar{height:100%;width:0;background:#65f09a;transition:.3s}
+.q{margin-top:22px}.num{color:#65f09a;font-weight:bold}.question{font-size:21px;font-weight:800;line-height:1.45;margin:7px 0 17px}
+.answers{display:grid;gap:10px}.ans{border:1px solid #ffffff22;background:#ffffff0d;color:white;padding:14px;border-radius:14px;text-align:left;font-size:15.5px;cursor:pointer}.ans:hover{background:#ffffff1c}
+.hidden{display:none}.result{text-align:center}.position{font-size:30px;font-weight:900;color:#65f09a;margin:10px}.desc{line-height:1.65;color:#d9f4e1}.score{text-align:left;margin:20px 0}.row{margin:11px 0}.track{height:8px;background:#ffffff1c;border-radius:8px}.fill{height:100%;background:#65f09a;border-radius:8px}
+.restart{background:#65f09a;color:#062512;border:0;border-radius:13px;padding:13px 22px;font-weight:800;font-size:16px;cursor:pointer}.small{text-align:center;color:#9fc7ad;font-size:12px;margin-top:17px}
+</style>
+</head>
+<body>
+<div class="wrap"><div class="card">
+<div id="quiz">
+<div class="logo">FAM</div><div class="ball">⚽</div>
+<h1>คุณเหมาะกับตำแหน่งไหน?</h1>
+<div class="sub">แบบทดสอบฟุตบอล 7 คน • 20 ข้อ • ข้อละ 6 ช้อยส์</div>
+<div class="progress"><div id="bar" class="bar"></div></div>
+<div class="q"><div id="num" class="num"></div><div id="question" class="question"></div><div id="answers" class="answers"></div></div>
+<div class="small">เลือกคำตอบที่ตรงกับตัวคุณมากที่สุด</div>
+</div>
+<div id="result" class="result hidden"></div>
+</div></div>
+
+<script>
+const qs=[
+["ถ้าเพื่อนเสียบอลตรงกลางสนาม คุณจะทำอะไรเป็นอย่างแรก?",
+["ถอยลงไปป้องกันหน้าประตู","ประกบคนที่อันตรายที่สุด","เข้าช่วยแย่งบอลทันที","รับบอลแล้วคุมจังหวะ","วิ่งขึ้นไปหาพื้นที่","วิ่งเข้าเขตโทษเพื่อรอยิง"]],
+["จุดเด่นของคุณในสนามคืออะไร?",
+["ปฏิกิริยาเร็วและเซฟบอล","อ่านเกมและเข้าสกัด","ความแข็งแรงในการดวล","การจ่ายบอลและคุมเกม","ความเร็วและการเลี้ยงบอล","การยิงและจบสกอร์"]],
+["คุณชอบเล่นบริเวณไหนมากที่สุด?",
+["ใกล้ประตูตัวเอง","แดนหลัง","ด้านข้างของแดนหลัง","กลางสนาม","ริมเส้นและพื้นที่ว่าง","หน้าเขตโทษ/ในเขตโทษ"]],
+["ถ้าเจอคู่แข่งหลุดเข้ามา คุณจะ...",
+["เตรียมตัวเซฟ","เข้าไปบีบและตัดทาง","ยืนคุมพื้นที่ไม่ให้ผ่าน","ช่วยเพื่อนซ้อนแล้วรับบอลต่อ","วิ่งไล่จากด้านข้าง","รอสวนกลับเมื่อแย่งบอลได้"]],
+["คุณชอบจังหวะแบบไหนที่สุด?",
+["เซฟลูกยิง","ตัดบอลสำคัญ","ชนะการดวลตัวต่อตัว","จ่ายบอลสวย ๆ","เลี้ยงผ่านคู่แข่ง","ยิงประตู"]],
+["เมื่อทีมครองบอล คุณมักจะ...",
+["ยืนคุมพื้นที่ด้านหลัง","คอยเปิดทางให้เพื่อน","ขยับออกด้านข้างเพื่อรับบอล","ขอบอลเพื่อเริ่มเกม","หาพื้นที่ริมเส้น","หาช่องหลังแนวรับ"]],
+["ถ้าได้บอลในพื้นที่อันตราย คุณจะ...",
+["เล่นปลอดภัยก่อน","เคลียร์หรือจ่ายออกข้าง","พาบอลหนีแรงกดดัน","มองหาคนว่าง","ลากเข้าใส่คู่แข่ง","ยิงทันทีถ้ามีช่อง"]],
+["อะไรสำคัญที่สุดสำหรับคุณ?",
+["ไม่เสียประตู","เกมรับที่เหนียวแน่น","ชนะการปะทะ","ครองเกมและสร้างโอกาส","สร้างความแตกต่างด้วยความเร็ว","ทำประตูให้ทีม"]],
+["เพื่อนโดนสวนกลับเร็ว คุณจะ...",
+["เตรียมรับลูกยิง","ถอยไปปิดทาง","เข้าช่วยหยุดบอล","พยายามตัดบอลกลางสนาม","วิ่งตามตัวรุกริมเส้น","กดดันคนมีบอล"]],
+["คุณถนัดการส่งบอลแบบไหน?",
+["ส่งสั้นให้เพื่อนใกล้ ๆ","จ่ายปลอดภัยไปด้านข้าง","จ่ายยาวเปลี่ยนแกน","แทงบอลให้เพื่อน","จ่ายทะลุริมเส้น","จ่ายให้ตัวเอง/เพื่อนเข้าทำ"]],
+["ถ้าต้องเลือกหนึ่งทักษะ คุณเลือก...",
+["เซฟจุดโทษ","สกัดบอลแม่น","เบียดชนะคู่แข่ง","จ่ายทะลุช่อง","เลี้ยงบอลผ่าน 2 คน","ยิงไกลเข้าประตู"]],
+["เวลาเสียประตู คุณคิดถึงอะไร?",
+["ต้องป้องกันให้ดีกว่านี้","ต้องคุมตัวรุกให้แน่นขึ้น","ต้องชนะจังหวะปะทะ","ต้องคุมเกมให้มากขึ้น","ต้องช่วยเกมรับและสวนกลับ","ต้องยิงคืน"]],
+["ถ้าทีมได้ฟรีคิก คุณอยาก...",
+["ยืนเฝ้าประตู","ช่วยกันตั้งรับ","ยืนคุมพื้นที่สอง","เป็นคนเปิดบอล","ยืนรอบอลริมเส้น","รอยิงหรือโหม่ง"]],
+["คุณมีนิสัยแบบไหนในสนาม?",
+["ใจเย็นและมีสมาธิ","มีวินัย","กล้าเข้าปะทะ","ชอบคิดและวางแผน","ชอบลองดวลคู่แข่ง","มั่นใจและกล้ายิง"]],
+["ถ้าเหลือเวลาไม่กี่นาทีและทีมต้องการประตู คุณจะ...",
+["รักษาประตูไม่ให้โดนสวน","ช่วยทีมไม่เสียบอล","ดันขึ้นช่วยทีม","คุมเกมแล้วหาช่องจ่าย","เร่งเกมจากริมเส้น","พยายามยิงให้ได้"]],
+["ถ้าคู่แข่งมีคนเก่งมาก คุณจะ...",
+["เตรียมรับมือจังหวะยิง","ประกบเขา","เข้าดวลให้เขาเล่นยาก","ตัดบอลก่อนถึงเขา","บีบจากด้านข้าง","กดดันเขาเมื่อได้บอล"]],
+["คุณชอบดูนักเตะแบบไหน?",
+["ผู้รักษาประตู","กองหลังตัวกลาง","กองหลังริมเส้น","กองกลาง","ปีก","กองหน้า"]],
+["ถ้าเพื่อนส่งบอลให้คุณ คุณมักจะ...",
+["คืนบอลอย่างปลอดภัย","จ่ายให้คนว่าง","เปิดบอลขึ้นหน้า","หันตัวแล้วสร้างเกม","เลี้ยงไปข้างหน้า","ยิงถ้ามีโอกาส"]],
+["อะไรทำให้คุณรู้สึกว่าเล่นได้ดี?",
+["เซฟลูกยากได้","ตัดบอลได้หลายครั้ง","หยุดคู่แข่งได้","จ่ายบอลสำเร็จต่อเนื่อง","เลี้ยงผ่านและสร้างโอกาส","ยิงหรือแอสซิสต์"]],
+["หลังจบเกม คุณอยากให้เพื่อนพูดว่า...",
+["วันนี้เซฟช่วยทีมไว้เยอะ","วันนี้เกมรับแน่นมาก","วันนี้เอาชนะการดวลได้ดี","วันนี้คุมเกมยอดเยี่ยม","วันนี้สร้างความปั่นป่วนให้คู่แข่ง","วันนี้เป็นคนทำประตู"]
+]
+];
+
+const pos=[
+{name:"ผู้รักษาประตู (GK)",icon:"🧤",desc:"เหมาะกับบทบาทเฝ้าเสา อ่านทางบอล และช่วยเริ่มเกมจากด้านหลัง"},
+{name:"กองหลังตัวกลาง (CB)",icon:"🛡️",desc:"เหมาะกับการคุมพื้นที่ ตัดบอล ประกบ และหยุดเกมรุกของคู่แข่ง"},
+{name:"กองหลังริมเส้น (FB)",icon:"🏃",desc:"เหมาะกับการช่วยเกมรับริมเส้น วิ่งขึ้นลง และสนับสนุนเกมรุก"},
+{name:"กองกลาง (CM)",icon:"🎯",desc:"เหมาะกับการเชื่อมเกม คุมจังหวะ จ่ายบอล และสร้างโอกาส"},
+{name:"ปีก (W)",icon:"⚡",desc:"เหมาะกับการใช้ความเร็ว เลี้ยงบอล เล่นริมเส้น และสร้างโอกาส"},
+{name:"กองหน้า (ST)",icon:"🔥",desc:"เหมาะกับการหาพื้นที่ เล่นใกล้ประตู และจบสกอร์"}
+];
+let n=0,s=[0,0,0,0,0,0];
+function render(){
+num.textContent=`ข้อ ${n+1} / 20`;
+question.textContent=qs[n][0];
+bar.style.width=(n/20*100)+"%";
+answers.innerHTML="";
+qs[n][1].forEach((a,j)=>{let b=document.createElement("button");b.className="ans";b.textContent=`${String.fromCharCode(65+j)}. ${a}`;b.onclick=()=>pick(j);answers.appendChild(b)});
+}
+function pick(j){s[j]++;n++;if(n<20)render();else finish()}
+function finish(){
+quiz.classList.add("hidden");result.classList.remove("hidden");
+let order=s.map((v,i)=>({v,i})).sort((a,b)=>b.v-a.v),top=order[0],p=pos[top.i];
+result.innerHTML=`<div style="font-size:62px">${p.icon}</div><div class="sub">ผลการวิเคราะห์จาก 20 ข้อ</div><div class="position">${p.name}</div><p class="desc">${p.desc}</p><div class="score">${order.map(x=>`<div class="row"><b>${pos[x.i].name}</b> — ${x.v} คะแนน<div class="track"><div class="fill" style="width:${x.v/20*100}%"></div></div></div>`).join("")}</div><button class="restart" onclick="location.reload()">🔄 ทำใหม่อีกครั้ง</button>`;
+}
+render();
+</script>
+</body>
+</html>
